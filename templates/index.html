@@ -1,9 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>Stage 1 - Test</title>
+    <meta charset="UTF-8">
+    <title>IT 용어 채우기</title>
+    <style>
+        body { background: #f4f9ff; color: #2c3e50; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; padding: 0; margin: 0; }
+        header { background: #ffffff; padding: 15px 40px; box-shadow: 0 2px 15px rgba(0, 162, 255, 0.1); display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #33b5ff; position: sticky; top: 0; z-index: 100; }
+        
+        h1 { margin: 0; font-size: 1.4em; color: #33b5ff; font-weight: 800; }
+        h1 span.it-text { color: #444444; }
+        h1 span.gray-text { color: #666666; font-weight: 500; font-size: 0.85em; }
+
+        #input-area { background: #ffffff; margin: 20px 40px; padding: 20px; border-radius: 12px; display: flex; gap: 10px; align-items: center; box-shadow: 0 4px 15px rgba(0, 162, 255, 0.05); }
+        #word-input { flex: 1; padding: 12px 20px; border: 2px solid #33b5ff; border-radius: 8px; font-size: 1em; outline: none; transition: 0.3s; color: #444444; }
+        #word-input::placeholder { color: #abbccf; }
+        #word-input:focus { border-color: #0099ff; box-shadow: 0 0 8px rgba(51, 181, 255, 0.2); }
+        
+        #start-btn { padding: 12px 30px; background: #33b5ff; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        #start-btn:hover { background: #0099ff; }
+
+        /* 시작 버튼 비활성화(작업 중) 시: 회색 대신 짙은 파란색 계열로 변경 */
+        #start-btn:disabled { 
+            background: #a5d8ff; /* 연한 파란색으로 변경하여 '진행 중'임을 암시 */
+            color: #ffffff;
+            cursor: not-allowed; 
+        }
+
+        #status-indicator { font-size: 0.9em; font-weight: bold; padding: 8px 18px; border-radius: 25px; background: #33b5ff; color: #ffffff; }
+        #log-container { background: #ffffff; margin: 0 40px 40px 40px; min-height: 60vh; padding: 30px; border-radius: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0, 162, 255, 0.05); }
+
+        /* 진행 로그 스타일 */
+        .word-group { margin-bottom: 40px; display: flex; flex-direction: column; } 
+        .header-msg { display: inline-block; color: #ffffff; font-weight: bold; background: #33b5ff; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; width: fit-content; }
+        .info { color: #0099ff; font-weight: bold; font-size: 1.1em; border-left: 5px solid #33b5ff; padding: 8px 15px; background: #f0faff; width: fit-content; margin-bottom: 2px; }
+        .info span.word-name { color: #444444; margin-left: 5px; }
+        .detail-log { margin-left: 30px; font-size: 0.95em; color: #555555; margin-bottom: 2px; }
+        .detail-log span.blue-icon { color: #33b5ff; margin-right: 5px; }
+
+        /* 완료 박스 디자인 */
+        .finish { background: #33b5ff; color: #ffffff !important; font-weight: bold; padding: 20px 45px; margin: 20px auto; border-radius: 50px; font-size: 1.3em; width: fit-content; text-align: center; box-shadow: 0 4px 15px rgba(51, 181, 255, 0.3); }
+        #dl-status { text-align: center; color: #33b5ff; font-weight: bold; margin-bottom: 15px; font-size: 1.2em; }
+        .dl-link { color: #0099ff; text-decoration: underline; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <h1>결과: {{ result }}</h1>
+    <header>
+        <h1><span class="it-text">IT</span> 용어의 내용 채우기 <span class="gray-text">(크롤링, 제미나이, GPT)</span></h1>
+        <div id="status-indicator">READY</div>
+    </header>
+
+    <div id="input-area">
+        <input type="text" id="word-input" placeholder="수집할 용어를 쉼표(,)로 구분해서 입력하세요 (예: BGP, ISP, DNS)">
+        <button id="start-btn">시작</button>
+    </div>
+
+    <div id="log-container"></div>
+
+    <script>
+        const logContainer = document.getElementById('log-container');
+        const statusIndicator = document.getElementById('status-indicator');
+        const wordInput = document.getElementById('word-input');
+        const startBtn = document.getElementById('start-btn');
+
+        function startTask() {
+            const val = wordInput.value.trim();
+            if(!val) { alert("용어를 입력해주세요!"); return; }
+
+            logContainer.innerHTML = "";
+            startBtn.disabled = true;
+            wordInput.disabled = true;
+            statusIndicator.innerText = "● RUNNING";
+            
+            const ws = new WebSocket("ws://" + window.location.host + "/ws");
+            ws.onopen = () => { ws.send(val); };
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'header') {
+                    const div = document.createElement('div');
+                    div.className = 'header-msg';
+                    div.innerText = data.msg.replace("분석 대상:", "제목:");
+                    logContainer.prepend(div);
+                } 
+                else if (data.type === 'info') {
+                    const group = document.createElement('div');
+                    group.className = 'word-group';
+                    const title = document.createElement('div');
+                    title.className = 'info';
+                    const parts = data.msg.split(' '); 
+                    title.innerHTML = `${parts[0]} <span class="word-name">${parts.slice(1).join(' ')}</span>`;
+                    group.appendChild(title);
+                    logContainer.prepend(group); 
+                    window['group_' + data.word] = group;
+                } 
+                else if (data.type === 'detail') {
+                    const detail = document.createElement('div');
+                    detail.className = 'detail-log';
+                    detail.innerHTML = `<span class="blue-icon">${data.msg.substring(0, 2)}</span>${data.msg.substring(2)}`;
+                    if (window['group_' + data.word]) window['group_' + data.word].appendChild(detail);
+                } 
+                else if (data.type === 'finish') {
+                    statusIndicator.innerText = "● COMPLETED";
+                    logContainer.innerHTML = "";
+                    const statusMsg = document.createElement('div');
+                    statusMsg.id = 'dl-status';
+                    statusMsg.innerHTML = "📂 <b>IT용어_엑셀.xlsx</b> 다운로드 완료 (다운로드 폴더)<br><small style='font-size:0.7em'>(자동 다운로드가 안 되었다면 <span class='dl-link' onclick='location.href=\"/download\"'>여기</span> 클릭)</small>";
+                    logContainer.appendChild(statusMsg);
+                    const f = document.createElement('div');
+                    f.className = 'finish';
+                    f.innerText = data.msg;
+                    logContainer.appendChild(f);
+                    startBtn.disabled = false;
+                    wordInput.disabled = false;
+                    wordInput.value = ""; 
+                    setTimeout(() => { window.location.href = "/download"; }, 500);
+                }
+            };
+        }
+        startBtn.onclick = startTask;
+        wordInput.onkeypress = (e) => { if(e.key === 'Enter') startTask(); };
+    </script>
 </body>
 </html>
