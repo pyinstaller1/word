@@ -1,3 +1,10 @@
 fastapi
 uvicorn
 jinja2
+python-multipart
+pandas
+openpyxl
+requests
+beautifulsoup4
+google-genai
+openai
