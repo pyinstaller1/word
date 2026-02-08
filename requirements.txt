@@ -4,6 +4,7 @@ jinja2
 python-multipart
 pandas
 openpyxl
+xlsxwriter
 requests
 beautifulsoup4
 google-genai
