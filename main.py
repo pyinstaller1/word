@@ -25,17 +25,67 @@ current_output_file = BASE_FILENAME
 
 def save_excel_safe(df):
     global current_output_file
+    
+    # [중요] 로그에 찍힌 실제 컬럼명과 100% 일치시킨 순서입니다.
+    target_order = [
+        "용어", 
+        "수동정의(빈칸)", 
+        "제미나이 답변", 
+        "GPT 답변",       # '지피티'에서 'GPT'로 변경
+        "TTA 정보통신",    # 로그에 찍힌 이름 반영
+        "네이버 백과사전",  # 로그에 찍힌 이름 반영
+        "IT위키"          # 로그에 찍힌 이름 반영
+    ]
+    
+    # 실제 존재하는 열만 필터링하여 순서 재배치
+    existing_cols = [c for c in target_order if c in df.columns]
+    df = df[existing_cols]
+
     filename = BASE_FILENAME
     counter = 1
+    
     while True:
         try:
-            df.to_excel(filename, index=False)
+            writer = pd.ExcelWriter(filename, engine='xlsxwriter')
+            df.to_excel(writer, index=False, sheet_name='IT용어사전')
+            
+            workbook  = writer.book
+            worksheet = writer.sheets['IT용어사전']
+
+            # --- 디자인 (짙고 산뜻한 파랑 헤더 / 흰색 글자) ---
+            header_format = workbook.add_format({
+                'bold': True, 'font_color': '#FFFFFF', 'bg_color': '#0078D4',
+                'border': 1, 'align': 'center', 'valign': 'vcenter'
+            })
+            col1_format = workbook.add_format({
+                'bg_color': '#E3F2FD', 'border': 1, 'valign': 'top', 'text_wrap': True
+            })
+            body_format = workbook.add_format({
+                'text_wrap': True, 'valign': 'top', 'border': 1
+            })
+
+            # --- 사용자 설정 수치 (너비 7, 30 / 높이 80) ---
+            worksheet.set_column('A:A', 7, col1_format)
+            worksheet.set_column('B:G', 30, body_format)
+
+            for row_num in range(1, len(df) + 1):
+                worksheet.set_row(row_num, 80)
+
+            # 제목행 서식 적용
+            for col_num, value in enumerate(df.columns.values):
+                worksheet.write(0, col_num, value, header_format)
+            
+            worksheet.set_row(0, 25)
+
+            writer.close()
             current_output_file = filename
             break
         except PermissionError:
             filename = f"IT용어_엑셀_{counter}.xlsx"
             counter += 1
     return filename
+
+
 
 # 크롤링 함수들 (tta, naver, itwiki) - 이전과 동일
 def get_tta_data(word):
@@ -64,16 +114,26 @@ def get_naver_data(word):
         return content.get_text(separator="\n", strip=True) if content else ""
     except: return ""
 
+# --- IT위키 크롤링 함수 수정 (대문자 변환 추가) ---
 def get_itwiki_data(word):
     try:
-        res = requests.get(f"https://itwiki.kr/w/{word}", headers=HEADERS, timeout=5)
-        if res.status_code != 200: return ""
+        # IT위키는 대문자로 검색해야 404 에러가 안 납니다.
+        search_word = word.upper() 
+        res = requests.get(f"https://itwiki.kr/w/{search_word}", headers=HEADERS, timeout=5)
+        
+        if res.status_code != 200:
+            return ""
+            
         soup = BeautifulSoup(res.text, "html.parser").select_one(".mw-parser-output")
         if soup:
-            for tag in soup.select(".toc, .mw-editsection"): tag.decompose()
+            for tag in soup.select(".toc, .mw-editsection, .infobox"): 
+                tag.decompose()
             return soup.get_text(separator="\n", strip=True)
         return ""
-    except: return ""
+    except:
+        return ""
+
+    
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -111,21 +171,21 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             gem_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=prompt)
             gem_ans = gem_res.text.strip()
-            await websocket.send_json({"msg": "☑️ 제미나이 분석 완료", "type": "detail", "word": word})
+            await websocket.send_json({"msg": "☑️ 제미나이 답변 완료", "type": "detail", "word": word})
         except:
             gem_ans = "Error"; await websocket.send_json({"msg": "❌ 제미나이 에러", "type": "detail", "word": word})
 
         try:
             gpt_res = client_gpt.chat.completions.create(model="gpt-4o", messages=[{"role": "user", "content": prompt}])
             gpt_ans = gpt_res.choices[0].message.content.strip()
-            await websocket.send_json({"msg": "☑️ GPT 분석 완료", "type": "detail", "word": word})
+            await websocket.send_json({"msg": "☑️ GPT 답변 완료", "type": "detail", "word": word})
         except:
             gpt_ans = "Error"; await websocket.send_json({"msg": "❌ GPT 에러", "type": "detail", "word": word})
 
         final_results.append({
-            "용어": word, "수동정의(빈칸)": "", "TTA 표준정의": tta,
-            "네이버 상세본문": naver, "IT위키 상세본문": itwiki,
-            "제미나이 답변": gem_ans, "지피티 답변": gpt_ans
+            "용어": word, "수동정의(빈칸)": "", "TTA 정보통신": tta,
+            "네이버 백과사전": naver, "IT위키": itwiki,
+            "제미나이 답변": gem_ans, "GPT 답변": gpt_ans
         })
         save_excel_safe(pd.DataFrame(final_results))
 
