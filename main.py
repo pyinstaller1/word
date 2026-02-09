@@ -13,8 +13,8 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
 # API 설정 (사용자 키 유지)
-GEMINI_KEY = "AIzaSyD3oKERtLmCXOPHOj1gILavTs4b1rhYu8I"
-GPT_KEY = "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"
+GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+GPT_KEY = os.getenv("OPENAI_API_KEY")
 
 client_gemini = genai.Client(api_key=GEMINI_KEY)
 client_gpt = OpenAI(api_key=GPT_KEY)
@@ -191,3 +191,4 @@ async def websocket_endpoint(websocket: WebSocket):
 
     await websocket.send_json({"msg": "🎊 모든 작업이 완료되었습니다! 🥳", "type": "finish"})
     await websocket.close()
+
