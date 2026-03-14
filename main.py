@@ -192,7 +192,7 @@ async def websocket_endpoint(websocket: WebSocket):
         final_results.append({
             "용어": word, 
             "핵심 정의(Gemini)": gem_summary, # 새로 만든 변수
-            "제미나이 상세": gem_ans,        # 변수명 확인
+            "제미나이 상세": gem_detail,        # 변수명 확인
             "GPT 상세": gpt_ans,           # 변수명 확인
             "TTA 정보통신": tta,
             "네이버 백과사전": naver
