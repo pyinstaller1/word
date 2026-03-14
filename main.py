@@ -147,7 +147,6 @@ async def download():
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    # 클라이언트로부터 단어 리스트 수신
     data = await websocket.receive_text()
     list_word = [w.strip() for w in data.split(",") if w.strip()]
     
@@ -161,32 +160,44 @@ async def websocket_endpoint(websocket: WebSocket):
         tta = await loop.run_in_executor(None, get_tta_data, word)
         naver = await loop.run_in_executor(None, get_naver_data, word)
         
-        await websocket.send_json({"msg": "☑️ 크롤링 완료 (TTA, 네이버, IT위키)", "type": "detail", "word": word})
+        await websocket.send_json({"msg": "☑️ 크롤링 완료", "type": "detail", "word": word})
 
-        prompt = f"IT 용어 사전용: '{word}'의 기술적 정의와 핵심 원리를 전문가 수준으로 정리해줘."
-        
-        # 제미나이 -> GPT 순서
+        # --- [추가] 1. 제미나이 핵심 요약 요청 (첫 번째 열 용도) ---
+        summary_prompt = f"IT 용어 사전용: '{word}'의 정의를 일반인도 이해하기 쉽게 200~500자로 요약해줘."
         try:
-            gem_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=prompt)
-            gem_ans = gem_res.text.strip()
-            await websocket.send_json({"msg": "☑️ 제미나이 답변 완료", "type": "detail", "word": word})
+            sum_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=summary_prompt)
+            gem_summary = sum_res.text.strip()
+            await websocket.send_json({"msg": "☑️ 제미나이 요약 완료", "type": "detail", "word": word})
         except:
-            gem_ans = "Error"; await websocket.send_json({"msg": "❌ 제미나이 에러", "type": "detail", "word": word})
+            gem_summary = "Error"
 
+        # --- 2. 제미나이 상세 분석 요청 (기존 로직) ---
+        detail_prompt = f"IT 용어 사전용: '{word}'의 기술적 정의와 핵심 원리를 전문가 수준으로 상세히 정리해줘."
         try:
-            gpt_res = client_gpt.chat.completions.create(model="gpt-4o", messages=[{"role": "user", "content": prompt}])
+            det_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=detail_prompt)
+            gem_detail = det_res.text.strip()
+            await websocket.send_json({"msg": "☑️ 제미나이 상세 분석 완료", "type": "detail", "word": word})
+        except:
+            gem_detail = "Error"
+
+        # --- 3. GPT 상세 분석 요청 ---
+        try:
+            gpt_res = client_gpt.chat.completions.create(model="gpt-4o", messages=[{"role": "user", "content": detail_prompt}])
             gpt_ans = gpt_res.choices[0].message.content.strip()
-            await websocket.send_json({"msg": "☑️ GPT 답변 완료", "type": "detail", "word": word})
+            await websocket.send_json({"msg": "☑️ GPT 상세 분석 완료", "type": "detail", "word": word})
         except:
-            gpt_ans = "Error"; await websocket.send_json({"msg": "❌ GPT 에러", "type": "detail", "word": word})
+            gpt_ans = "Error"
 
+        # --- 데이터 구성 (순서 중요!) ---
         final_results.append({
-            "용어": word, "수동정의(빈칸)": "", "TTA 정보통신": tta,
-            "네이버 백과사전": naver,
-            "제미나이 답변": gem_ans, "GPT 답변": gpt_ans
+            "용어": word, 
+            "핵심 정의(Gemini)": gem_summary, # 맨 앞에 추가된 내용
+            "제미나이 상세": gem_detail,
+            "GPT 상세": gpt_ans,
+            "TTA 정보통신": tta,
+            "네이버 백과사전": naver
         })
         save_excel_safe(pd.DataFrame(final_results))
 
-    await websocket.send_json({"msg": "🎊 모든 작업이 완료되었습니다! 🥳", "type": "finish"})
+    await websocket.send_json({"msg": "🎊 모든 작업이 완료되었습니다!", "type": "finish"})
     await websocket.close()
-
