@@ -31,10 +31,9 @@ def save_excel_safe(df):
         "용어", 
         "수동정의(빈칸)", 
         "제미나이 답변", 
-        "GPT 답변",       # '지피티'에서 'GPT'로 변경
-        "TTA 정보통신",    # 로그에 찍힌 이름 반영
-        "네이버 백과사전",  # 로그에 찍힌 이름 반영
-        "IT위키"          # 로그에 찍힌 이름 반영
+        "GPT 답변",
+        "TTA 정보통신",
+        "네이버 백과사전",
     ]
     
     # 실제 존재하는 열만 필터링하여 순서 재배치
@@ -66,7 +65,7 @@ def save_excel_safe(df):
 
             # --- 사용자 설정 수치 (너비 7, 30 / 높이 80) ---
             worksheet.set_column('A:A', 7, col1_format)
-            worksheet.set_column('B:G', 30, body_format)
+            worksheet.set_column('B:F', 30, body_format)
 
             for row_num in range(1, len(df) + 1):
                 worksheet.set_row(row_num, 80)
@@ -161,7 +160,6 @@ async def websocket_endpoint(websocket: WebSocket):
         loop = asyncio.get_event_loop()
         tta = await loop.run_in_executor(None, get_tta_data, word)
         naver = await loop.run_in_executor(None, get_naver_data, word)
-        itwiki = await loop.run_in_executor(None, get_itwiki_data, word)
         
         await websocket.send_json({"msg": "☑️ 크롤링 완료 (TTA, 네이버, IT위키)", "type": "detail", "word": word})
 
@@ -184,7 +182,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         final_results.append({
             "용어": word, "수동정의(빈칸)": "", "TTA 정보통신": tta,
-            "네이버 백과사전": naver, "IT위키": itwiki,
+            "네이버 백과사전": naver,
             "제미나이 답변": gem_ans, "GPT 답변": gpt_ans
         })
         save_excel_safe(pd.DataFrame(final_results))
