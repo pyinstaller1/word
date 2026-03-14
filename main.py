@@ -163,7 +163,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_json({"msg": "☑️ 크롤링 완료", "type": "detail", "word": word})
 
         # --- [추가] 1. 제미나이 핵심 요약 요청 (첫 번째 열 용도) ---
-        summary_prompt = f"IT 용어 사전용: '{word}'의 정의를 일반인도 이해하기 쉽게 200~500자로 요약해줘."
+        summary_prompt = f"IT 용어 사전용: '{word}'의 정의를 알려줘. 용어 사전에 기재할꺼니까 #, * 같은 기호 사용하지 마. 300~800자로 요약해줘."
         try:
             sum_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=summary_prompt)
             gem_summary = sum_res.text.strip()
