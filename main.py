@@ -26,16 +26,16 @@ current_output_file = BASE_FILENAME
 def save_excel_safe(df):
     global current_output_file
     
-    # [중요] 로그에 찍힌 실제 컬럼명과 100% 일치시킨 순서입니다.
     target_order = [
         "용어", 
-        "수동정의(빈칸)", 
-        "제미나이 답변", 
-        "GPT 답변",
-        "TTA 정보통신",
-        "네이버 백과사전",
+        "핵심 정의(Gemini)", 
+        "제미나이 상세", 
+        "GPT 상세", 
+        "TTA 정보통신", 
+        "네이버 백과사전"
     ]
-    
+
+
     # 실제 존재하는 열만 필터링하여 순서 재배치
     existing_cols = [c for c in target_order if c in df.columns]
     df = df[existing_cols]
@@ -188,15 +188,18 @@ async def websocket_endpoint(websocket: WebSocket):
         except:
             gpt_ans = "Error"
 
-        # --- 데이터 구성 (순서 중요!) ---
+
         final_results.append({
             "용어": word, 
-            "핵심 정의(Gemini)": gem_summary, # 맨 앞에 추가된 내용
-            "제미나이 상세": gem_detail,
-            "GPT 상세": gpt_ans,
+            "핵심 정의(Gemini)": gem_summary, # 새로 만든 변수
+            "제미나이 상세": gem_ans,        # 변수명 확인
+            "GPT 상세": gpt_ans,           # 변수명 확인
             "TTA 정보통신": tta,
             "네이버 백과사전": naver
         })
+        
+
+
         save_excel_safe(pd.DataFrame(final_results))
 
     await websocket.send_json({"msg": "🎊 모든 작업이 완료되었습니다!", "type": "finish"})
