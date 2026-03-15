@@ -158,9 +158,7 @@ async def websocket_endpoint(websocket: WebSocket):
         
         loop = asyncio.get_event_loop()
         tta = await loop.run_in_executor(None, get_tta_data, word)
-        naver = await loop.run_in_executor(None, get_naver_data, word)
-        naver = naver.replace('\t', '\n')
-        
+        naver = await loop.run_in_executor(None, get_naver_data, word)        
         await websocket.send_json({"msg": "☑️ 크롤링 완료", "type": "detail", "word": word})
 
         # --- [추가] 1. 제미나이 핵심 요약 요청 (첫 번째 열 용도) ---
@@ -190,11 +188,18 @@ async def websocket_endpoint(websocket: WebSocket):
             gpt_ans = "Error"
 
 
+        word = word.replace('\t', '\n')
+        gem_summary = gem_summary.replace('\t', '\n')
+        gem_detail = gem_detail.replace('\t', '\n')
+        gpt_ans = gpt_ans.replace('\t', '\n')
+        tta = tta.replace('\t', '\n')
+        naver = naver.replace('\t', '\n')
+
         final_results.append({
             "용어": word, 
-            "핵심 정의(Gemini)": gem_summary, # 새로 만든 변수
-            "제미나이 상세": gem_detail,        # 변수명 확인
-            "GPT 상세": gpt_ans,           # 변수명 확인
+            "핵심 정의(Gemini)": gem_summary,
+            "제미나이 상세": gem_detail,
+            "GPT 상세": gpt_ans,
             "TTA 정보통신": tta,
             "네이버 백과사전": naver
         })
