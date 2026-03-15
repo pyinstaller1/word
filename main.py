@@ -159,6 +159,7 @@ async def websocket_endpoint(websocket: WebSocket):
         loop = asyncio.get_event_loop()
         tta = await loop.run_in_executor(None, get_tta_data, word)
         naver = await loop.run_in_executor(None, get_naver_data, word)
+        naver = naver.replace('\t', '\n')
         
         await websocket.send_json({"msg": "☑️ 크롤링 완료", "type": "detail", "word": word})
 
