@@ -171,7 +171,7 @@ async def websocket_endpoint(websocket: WebSocket):
             gem_summary = "Error"
 
         # --- 2. 제미나이 상세 분석 요청 (기존 로직) ---
-        detail_prompt = f"IT 용어 사전용: '{word}'의 기술적 정의와 핵심 원리를 전문가 수준으로 상세히 정리해줘."
+        detail_prompt = f"IT 용어 사전용: '{word}'의 기술적 정의와 핵심 원리를 상세히 정리해줘."
         try:
             det_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=detail_prompt)
             gem_detail = det_res.text.strip()
