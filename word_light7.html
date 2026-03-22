@@ -592,102 +592,111 @@ function handleSearch() {
 
 
 
+            
+    function saveFile(addedCount) {
+        // 1. 입력 필드 초기화 (기존 로직 유지)
+        document.getElementById('bulkText').value = ''; 
+        document.getElementById('inKo').value = '';
+        document.getElementById('inContent').value = '';
+        document.getElementById('inGemini').value = ''; 
+        document.getElementById('inGpt').value = '';
+        document.getElementById('inTta').value = '';
+        document.getElementById('inWeb').value = '';
+
+        // 2. 데이터 정렬 (가나다순 유지)
+        db.sort(function(a, b) {
+            var aVal = a.ko || "";
+            var bVal = b.ko || "";
+            function getPriority(str) {
+                var char = str.trim().charAt(0);
+                if (/[가-힣]/.test(char)) return 1;
+                if (/[a-zA-Z]/.test(char)) return 2;
+                return 3;
+            }
+            var pA = getPriority(aVal);
+            var pB = getPriority(bVal);
+            if (pA !== pB) return pA - pB;
+            return aVal.localeCompare(bVal);
+        });
+
+        // 3. 현재 문서의 전체 텍스트(HTML) 가져오기
+        var html = document.documentElement.outerHTML;
+
+        // ---------------------------------------------------------
+        // [익스플로러 흉내 내기 섹션 - 보완된 치환 방식]
+        // ---------------------------------------------------------
         
-function saveFile(addedCount) {
-    // 1. 입력 필드 초기화 (원본 유지)
-    document.getElementById('bulkText').value = ''; 
-    document.getElementById('inKo').value = '';
-    document.getElementById('inContent').value = '';
-    document.getElementById('inGemini').value = ''; 
-    document.getElementById('inGpt').value = '';
-    document.getElementById('inTta').value = '';
-    document.getElementById('inWeb').value = '';
+        // 흉내 1: <html> 태그 중복 재현 (무한 중복 방지 로직 포함)
+        // 줄바꿈(\n)이 있을 수도, 없을 수도 있으므로 정규표현식 사용 대신 
+        var ieStyleHtml = html;
 
-    // 2. 데이터 정렬 (원본 로직 유지)
-    db.sort(function(a, b) {
-        var aVal = a.ko || "";
-        var bVal = b.ko || "";
-        function getPriority(str) {
-            var char = str.trim().charAt(0);
-            if (/[가-힣]/.test(char)) return 1;
-            if (/[a-zA-Z]/.test(char)) return 2;
-            return 3;
+
+
+
+        ieStyleHtml = ieStyleHtml.replace(/<html><html/g, '<html');
+
+        // 2. 그 다음 <html lang="ko">를 찾아서 <html><html lang="ko">로 바꿉니다.
+        ieStyleHtml = ieStyleHtml.replace('<html lang="ko">', '<html><html lang="ko">');
+        ieStyleHtml = ieStyleHtml.replace('<html><html><html lang="ko">', '<html><html lang="ko">');
+
+
+
+
+        // 흉내 2: 스타일 속성 대문자 변환
+        ieStyleHtml = ieStyleHtml.replace(/color:/gi, 'COLOR:').replace(/background:/gi, 'BACKGROUND:');
+
+        // 흉내 3: border 속성 치환
+        if (ieStyleHtml.indexOf('border: currentColor; border-image: none;') === -1) {
+            ieStyleHtml = ieStyleHtml.replace(/border: none;/g, 'border: currentColor; border-image: none;');
         }
-        var pA = getPriority(aVal);
-        var pB = getPriority(bVal);
-        if (pA !== pB) return pA - pB;
-        return aVal.localeCompare(bVal);
-    });
 
-    // 3. 현재 문서의 전체 텍스트(HTML) 가져오기
-    var html = document.documentElement.outerHTML;
+        // ---------------------------------------------------------
 
-    // ---------------------------------------------------------
-    // [익스플로러 흉내 내기 섹션 - 시작]
-    // ---------------------------------------------------------
-    
-    // 흉내 1: 익스플로러 특유의 <html> 태그 중복 재현
-    var ieStyleHtml = html.replace('<html lang="ko">', '<html><html lang="ko">');
+        // 4. 데이터 영역 마커 찾기
+        var startMark = "// [DATA_START]";
+        var endMark = "// [DATA_END]";
+        
+        var startIndex = ieStyleHtml.indexOf(startMark);
+        var endIndex = ieStyleHtml.indexOf(endMark);
 
-    // 흉내 2: 익스플로러가 좋아하는 대문자 스타일 속성으로 변환 (color -> COLOR 등)
-    ieStyleHtml = ieStyleHtml.replace(/color:/g, 'COLOR:').replace(/background:/g, 'BACKGROUND:');
+        if (startIndex === -1 || endIndex === -1) {
+            alert("⚠️ 데이터 영역 마커를 찾을 수 없습니다.");
+            return;
+        }
 
-    // 흉내 3: 익스플로러가 임의로 집어넣는 속성 흉내 (border-image 등)
-    // 실제 익스플로러 저장본에서 흔히 보이는 패턴을 강제 주입합니다.
-    ieStyleHtml = ieStyleHtml.replace(/border: none;/g, 'border: currentColor; border-image: none;');
+        // 5. 새로운 데이터 블록 생성
+        var newDataSection = startMark + "\n    var db = " + JSON.stringify(db, null, 4) + ";\n    ";
+        
+        // 6. 결합 (익스플로러처럼 DOCTYPE을 강제로 맨 앞에 붙여 조립)
+        var finalHtml = "<!DOCTYPE html>\n" + 
+                        ieStyleHtml.substring(0, startIndex) + 
+                        newDataSection + 
+                        ieStyleHtml.substring(endIndex);
 
-    // ---------------------------------------------------------
-    // [익스플로러 흉내 내기 섹션 - 끝]
-    // ---------------------------------------------------------
+        // 7. [결정적 흉내] 익스플로러 전용 인식 표식(BOM) 강제 삽입
+        var blob = new Blob(["\ufeff" + finalHtml], { type: 'text/html;charset=utf-8' });
+        
+        var filename = "word.html";
 
-    // 4. 데이터 영역 마커 (원본 유지)
-    var startMark = "// [DATA_START]";
-    var endMark = "// [DATA_END]";
-    
-    // 5. 기존 데이터 블록 위치 찾기 (ieStyleHtml 기준)
-    var startIndex = ieStyleHtml.indexOf(startMark);
-    var endIndex = ieStyleHtml.indexOf(endMark);
+        // 8. 저장 실행
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
 
-    if (startIndex === -1 || endIndex === -1) {
-        alert("⚠️ 데이터 영역 마커를 찾을 수 없습니다.");
-        return;
+        if (addedCount) {
+            alert("✅ 성공! " + addedCount + "건의 데이터가 저장되었습니다.");
+        } else {
+            alert("✅ 성공! 총 " + db.length + "건의 데이터가 손실 없이 저장되었습니다.");
+        }
     }
-
-    // 6. 새로운 데이터 블록 생성
-    var newDataSection = startMark + "\n    var db = " + JSON.stringify(db, null, 4) + ";\n    ";
-    
-    // 7. 결합 (익스플로러처럼 DOCTYPE과 <html> 사이를 구성)
-    var finalHtml = "<!DOCTYPE html>\n" + 
-                    ieStyleHtml.substring(0, startIndex) + 
-                    newDataSection + 
-                    ieStyleHtml.substring(endIndex);
-
-    // 8. [결정적 흉내] 익스플로러 전용 인식 표식(BOM) 강제 삽입
-    // 이 표식이 있어야 크롬에서 저장해도 익스플로러가 자기 파일로 인식합니다.
-    var blob = new Blob(["\ufeff" + finalHtml], { type: 'text/html;charset=utf-8' });
-    
-    var filename = "word.html";
-
-    // 9. 저장 실행 (원본 로직 유지)
-    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveOrOpenBlob(blob, filename);
-    } else {
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(a.href);
-    }
-
-    if (addedCount) {
-        alert("✅ 성공! " + addedCount + "건의 데이터가 저장되었습니다.");
-    } else {
-        alert("✅ 성공! 총 " + db.length + "건의 데이터가 손실 없이 저장되었습니다.");
-    }
-}
-
 
 
 
