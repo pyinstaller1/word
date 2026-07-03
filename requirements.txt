@@ -7,5 +7,5 @@ openpyxl
 xlsxwriter
 requests
 beautifulsoup4
-google-genai
+google-genai==0.5.0
 openai
