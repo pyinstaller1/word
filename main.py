@@ -177,7 +177,27 @@ async def websocket_endpoint(websocket: WebSocket):
         # --- [추가] 1. 제미나이 핵심 요약 요청 (첫 번째 열 용도) ---
         summary_prompt = f"IT 용어 사전용: '{word}'의 정의를 알려줘. 용어 사전에 기재할꺼니까 #, * 같은 기호 사용하지 마. '~입니다.' 체가 아닌 '~이다.' 체로 해. 300~800자로 요약해줘."
         try:
-            sum_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=summary_prompt)
+            # sum_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=summary_prompt)
+
+            try:
+                sum_res = client_gemini.models.generate_content(
+                    model="models/gemini-2.0-flash",
+                    contents=summary_prompt
+                )
+                gem_summary = sum_res.text.strip()
+            except Exception as e:
+                print("GEMINI ERROR:", e)
+                gem_summary = "Error"
+
+
+
+
+
+
+
+
+
+            
             gem_summary = sum_res.text.strip()
             await websocket.send_json({"msg": "☑️ 제미나이 요약 완료", "type": "detail", "word": word})
         except:
