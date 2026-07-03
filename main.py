@@ -196,7 +196,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
         for idx, word in enumerate(list_word, start=1):
             
-            summary_prompt = f"'{word}'라는 IT 용어에 대해 3문장 정도로 핵심만 정의해줘.  존댓말 하지마."
+            summary_prompt = f"'{word}'라는 IT 용어에 대해 3문장 정도로 핵심만 정의해줘.  입니다 체 말고 이다 체 로 해."
             detail_prompt = f"'{word}'라는 IT 용어에 대해 상세하게 설명해줘."
 
             print("DEBUG WORD =", word)
