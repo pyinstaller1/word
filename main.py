@@ -216,6 +216,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 sum_res = client_gemini.models.generate_content(
                     model="gemini-2.0-flash",
                     contents=[summary_prompt]
+                )
                 
                 
                                 
