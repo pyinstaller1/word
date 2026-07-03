@@ -158,7 +158,12 @@ def get_itwiki_data(word):
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    # 기존 코드 대신 아래와 같이 수정하세요
+    return templates.TemplateResponse(
+        request=request, name="index.html"
+    )
+
+
 
 @app.get("/download")
 async def download():
