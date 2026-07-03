@@ -158,6 +158,8 @@ async def websocket_endpoint(websocket: WebSocket):
     final_results = []
     await websocket.send_json({"msg": f"💎 제목: {', '.join(list_word)}", "type": "header"})
 
+    print(7777777)
+
     for idx, word in enumerate(list_word, start=1):
         await websocket.send_json({"msg": f"[{idx}/{len(list_word)}] {word}", "type": "info", "word": word})
         
