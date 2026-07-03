@@ -32,7 +32,7 @@ for m in client.models.list():
     print(m.name)
     
 print(7)
-print(GEMINI_KEY))
+print(GEMINI_KEY)
 
 def save_excel_safe(df):
     global current_output_file
