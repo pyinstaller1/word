@@ -11,6 +11,14 @@ from google import genai
 from openai import OpenAI
 import os
 
+
+
+print(f"DEBUG: 현재 환경 변수 목록 중 키 확인: {'GEMINI_API_KEY' in os.environ}")
+print(f"DEBUG: 읽어온 값: {os.getenv('GEMINI_API_KEY')}")
+
+
+
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
