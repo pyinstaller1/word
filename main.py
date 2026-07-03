@@ -206,7 +206,20 @@ async def websocket_endpoint(websocket: WebSocket):
         # --- 2. 제미나이 상세 분석 요청 (기존 로직) ---
         detail_prompt = f"IT 용어 사전용: '{word}'의 기술적 정의와 핵심 원리를 상세히 정리해줘."
         try:
-            det_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=detail_prompt)
+            # det_res = client_gemini.models.generate_content(model="models/gemini-2.0-flash", contents=detail_prompt)
+
+            try:
+                det_res = client_gemini.models.generate_content(
+                    model="models/gemini-2.0-flash",
+                    contents=detail_prompt
+                )
+                gem_detail = det_res.text.strip()
+            except Exception as e:
+                print("GEMINI DETAIL ERROR:", e)
+                gem_detail = "Error"
+
+
+            
             gem_detail = det_res.text.strip()
             await websocket.send_json({"msg": "☑️ 제미나이 상세 분석 완료", "type": "detail", "word": word})
         except:
