@@ -23,6 +23,9 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 BASE_FILENAME = "IT용어_엑셀.xlsx"
 current_output_file = BASE_FILENAME
 
+print(7)
+print("GEMINI_API_KEY =", os.getenv("GEMINI_API_KEY"))
+
 def save_excel_safe(df):
     global current_output_file
     
