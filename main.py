@@ -219,7 +219,7 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
 
                 sum_res = client_gemini.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-3.5-flash",
                     contents=[summary_prompt]
                 )
                 
@@ -231,7 +231,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 gem_summary = "Error"     
             try:
                 det_res = client_gemini.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model="gemini-3.5-flash",
                     contents=[detail_prompt]
                 )
                 gem_detail = det_res.text.strip()
