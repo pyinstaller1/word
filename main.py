@@ -25,6 +25,12 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 BASE_FILENAME = "IT용어_엑셀.xlsx"
 current_output_file = BASE_FILENAME
 
+
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+for m in client.models.list():
+    print(m.name)
+    
 print(7)
 print("GEMINI_API_KEY =", os.getenv("GEMINI_API_KEY"))
 
