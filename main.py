@@ -212,10 +212,13 @@ async def websocket_endpoint(websocket: WebSocket):
             gpt_ans = ""
 
             try:
+
                 sum_res = client_gemini.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=summary_prompt
-                )
+                    contents=[summary_prompt]
+                
+                
+                                
                 gem_summary = sum_res.text.strip()
             except Exception as e:
                 print("GEMINI ERROR:", e)
@@ -223,7 +226,7 @@ async def websocket_endpoint(websocket: WebSocket):
             try:
                 det_res = client_gemini.models.generate_content(
                     model="gemini-2.0-flash",
-                    contents=detail_prompt
+                    contents=[detail_prompt]
                 )
                 gem_detail = det_res.text.strip()
             except Exception as e:
