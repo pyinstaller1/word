@@ -190,6 +190,9 @@ async def websocket_endpoint(websocket: WebSocket):
         })
 
         for idx, word in enumerate(list_word, start=1):
+            
+            summary_prompt = f"'{word}'라는 IT 용어에 대해 2문장으로 핵심만 정의해줘."
+            detail_prompt = f"'{word}'라는 IT 용어에 대해 상세하게 설명해줘."
 
             print("DEBUG WORD =", word)
 
@@ -198,6 +201,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "type": "info",
                 "word": word
             })
+
 
             tta = await asyncio.get_event_loop().run_in_executor(None, get_tta_data, word)
             naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
@@ -215,8 +219,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 gem_summary = sum_res.text.strip()
             except Exception as e:
                 print("GEMINI ERROR:", e)
-                gem_summary = "Error"
-
+                gem_summary = "Error"     
             try:
                 det_res = client_gemini.models.generate_content(
                     model="gemini-2.0-flash",
