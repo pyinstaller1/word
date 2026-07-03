@@ -1,3 +1,5 @@
+print(7)
+
 import pandas as pd
 import requests
 import asyncio
