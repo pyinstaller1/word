@@ -26,7 +26,7 @@ BASE_FILENAME = "IT용어_엑셀.xlsx"
 current_output_file = BASE_FILENAME
 
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_KEY)
 
 for m in client.models.list():
     print(m.name)
