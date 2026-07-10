@@ -137,6 +137,7 @@ def get_naver_data(word):
         soup2 = BeautifulSoup(detail.text, "html.parser")
 
         content = soup2.select_one("#size_ct")
+        print(content.get_text(separator="\n", strip=True))
         return content.get_text(separator="\n", strip=True) if content else ""
 
     except Exception as e:
@@ -189,7 +190,10 @@ async def download():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    print(88888888)
+
     await websocket.accept()
+    print(88888888888)
 
     try:
         data = await websocket.receive_text()
