@@ -52,6 +52,9 @@ print(GEMINI_KEY)
 
 def save_excel_safe(df):
     global current_output_file
+
+    print(777)
+    print(df)
     
     target_order = [
         "용어", 
