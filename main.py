@@ -209,7 +209,10 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
             tta = await asyncio.get_event_loop().run_in_executor(None, get_tta_data, word)
+            await send_status(websocket, "✅ TTA 사전 크롤링 완료", word)
+                
             naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
+            await send_status(websocket, "✅ 네이버사전 크롤링 완료", word)
 
             # 🔥 여기서 죽는거 방지 핵심
             gem_summary = ""
