@@ -119,21 +119,24 @@ def get_tta_data(word):
 
 def get_naver_data(word):
     try:
-        search_url = f"https://terms.naver.com/search.naver?query={word}&dicType=14&cid=42343"
+        search_url = f"https://terms.naver.com/search.naver?query={word}"
         res = requests.get(search_url, headers=HEADERS, timeout=5)
-        items = BeautifulSoup(res.text, "html.parser").select(".search_result_area .content_list > li")
-        if not items: return ""
-        target_item = items[0]
-        it_keywords = ["정보통신", "컴퓨터", "인터넷", "통신", "데이터", "IT", "네트워크"]
-        for item in items:
-            if any(k in item.get_text() for k in it_keywords):
-                target_item = item
-                break
-        d_url = "https://terms.naver.com" + target_item.select_one(".title a")['href']
-        d_res = requests.get(d_url, headers=HEADERS, timeout=5)
-        content = BeautifulSoup(d_res.text, "html.parser").select_one("#size_ct")
+        soup = BeautifulSoup(res.text, "html.parser")
+
+        links = soup.select("a[href*='/entry.naver?docId=']")
+        if not links:
+            return ""
+
+        url = "https://terms.naver.com" + links[0]["href"]
+        detail = requests.get(url, headers=HEADERS, timeout=5)
+        soup2 = BeautifulSoup(detail.text, "html.parser")
+
+        content = soup2.select_one("#size_ct")
         return content.get_text(separator="\n", strip=True) if content else ""
-    except: return ""
+
+    except Exception as e:
+        print("NAVER ERROR:", e)
+        return ""
 
 # --- IT위키 크롤링 함수 수정 (대문자 변환 추가) ---
 def get_itwiki_data(word):
