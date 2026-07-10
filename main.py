@@ -211,12 +211,6 @@ async def websocket_endpoint(websocket: WebSocket):
             })
 
 
-            tta = await asyncio.get_event_loop().run_in_executor(None, get_tta_data, word)
-            await websocket.send_json({"msg": "✅ TTA 사전 크롤링 완료", "type": "detail", "word": word})
-
-                
-            naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
-            await websocket.send_json({"msg": "✅ 네이버사전 크롤링 완료", "type": "detail", "word": word})
 
 
             gem_summary = ""
@@ -267,6 +261,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 print("GPT ERROR:", e)
                 gpt_ans = "Error"
 
+
+            tta = await asyncio.get_event_loop().run_in_executor(None, get_tta_data, word)
+            await websocket.send_json({"msg": "✅ TTA 사전 크롤링 완료", "type": "detail", "word": word})
+
+                
+            naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
+            await websocket.send_json({"msg": "✅ 네이버사전 크롤링 완료", "type": "detail", "word": word})
+
+
+            
             final_results.append({
                 "용어": word,
                 "핵심 정의(Gemini)": gem_summary,
@@ -285,6 +289,11 @@ async def websocket_endpoint(websocket: WebSocket):
             })
 
         await websocket.send_json({"msg": "🎊 완료", "type": "finish"})
+
+
+
+
+    
 
     except Exception as e:
         print("WS FATAL ERROR:", e)
