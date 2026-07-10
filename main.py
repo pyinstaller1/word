@@ -285,6 +285,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 "네이버 백과사전": naver
             })
 
+            print(naver)
+            print(888)
+            print(f"DEBUG: 저장 직전 데이터 확인: {final_results[-1]}")
+
             save_excel_safe(pd.DataFrame(final_results))
 
             await websocket.send_json({
