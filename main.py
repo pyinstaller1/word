@@ -255,7 +255,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     messages=[{"role": "user", "content": detail_prompt}]
                 )
                 gpt_ans = gpt_res.choices[0].message.content.strip()
-                await websocket.send_json({"msg": "✅ GPT 상세답변 완료", "type": "detail", "word": "word"})
+                await websocket.send_json({"msg": "✅ GPT 상세답변 완료", "type": "detail", "word": word})
                 
             except Exception as e:
                 print("GPT ERROR:", e)
