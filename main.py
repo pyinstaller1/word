@@ -139,6 +139,8 @@ def get_naver_data(word):
         detail = requests.get(url, headers=HEADERS, timeout=20, verify=False)
         soup2 = BeautifulSoup(detail.text, "html.parser")
 
+        print(soup2)
+
         content = soup2.select_one("#size_ct")
         print(777777)
         print(content.get_text(separator="\n", strip=True))
