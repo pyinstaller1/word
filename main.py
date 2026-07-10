@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 from google import genai
 from openai import OpenAI
 import os
+import time
 
 
 
@@ -129,6 +130,7 @@ def get_naver_data(word):
     try:
         search_url = f"https://terms.naver.com/search.naver?query={word}"
         res = requests.get(search_url, headers=HEADERS, timeout=20, verify=False)
+        time.sleep(2)
         soup = BeautifulSoup(res.text, "html.parser")
 
         links = soup.select("a[href*='/entry.naver?docId=']")
