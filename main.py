@@ -209,12 +209,13 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
             tta = await asyncio.get_event_loop().run_in_executor(None, get_tta_data, word)
-            await send_status(websocket, "✅ TTA 사전 크롤링 완료", word)
+            await websocket.send_json({"msg": "✅ TTA 사전 크롤링 완료", "type": "detail", "word": word})
+
                 
             naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
-            await send_status(websocket, "✅ 네이버사전 크롤링 완료", word)
+            await websocket.send_json({"msg": "✅ 네이버사전 크롤링 완료", "type": "detail", "word": word})
 
-            # 🔥 여기서 죽는거 방지 핵심
+
             gem_summary = ""
             gem_detail = ""
             gpt_ans = ""
@@ -229,6 +230,13 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                                 
                 gem_summary = sum_res.text.strip()
+                await websocket.send_json({"msg": "✅ 제미나이 답변 완료", "type": "detail", "word": word})
+
+
+
+
+
+            
             except Exception as e:
                 print("GEMINI ERROR:", e)
                 gem_summary = "Error"     
@@ -238,6 +246,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     contents=[detail_prompt]
                 )
                 gem_detail = det_res.text.strip()
+                await websocket.send_json({"msg": "✅ 제미나이 상세답변 완료", "type": "detail", "word": word})
+
             except Exception as e:
                 print("GEMINI DETAIL ERROR:", e)
                 gem_detail = "Error"
@@ -248,6 +258,8 @@ async def websocket_endpoint(websocket: WebSocket):
                     messages=[{"role": "user", "content": detail_prompt}]
                 )
                 gpt_ans = gpt_res.choices[0].message.content.strip()
+                await websocket.send_json({"msg": "✅ GPT 상세답변 완료", "type": "detail", "word": "word"})
+                
             except Exception as e:
                 print("GPT ERROR:", e)
                 gpt_ans = "Error"
