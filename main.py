@@ -128,7 +128,7 @@ def get_tta_data(word):
 def get_naver_data(word):
     try:
         search_url = f"https://terms.naver.com/search.naver?query={word}"
-        res = requests.get(search_url, headers=HEADERS, timeout=5, verify=False)
+        res = requests.get(search_url, headers=HEADERS, timeout=20, verify=False)
         soup = BeautifulSoup(res.text, "html.parser")
 
         links = soup.select("a[href*='/entry.naver?docId=']")
@@ -136,10 +136,11 @@ def get_naver_data(word):
             return ""
 
         url = "https://terms.naver.com" + links[0]["href"]
-        detail = requests.get(url, headers=HEADERS, timeout=5, verify=False)
+        detail = requests.get(url, headers=HEADERS, timeout=20, verify=False)
         soup2 = BeautifulSoup(detail.text, "html.parser")
 
         content = soup2.select_one("#size_ct")
+        print(777777)
         print(content.get_text(separator="\n", strip=True))
         return content.get_text(separator="\n", strip=True) if content else ""
 
