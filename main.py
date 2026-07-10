@@ -16,6 +16,11 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
 print(f"DEBUG: 현재 환경 변수 목록 중 키 확인: {'GEMINI_API_KEY' in os.environ}")
 print(f"DEBUG: 읽어온 값: {os.getenv('GEMINI_API_KEY')}")
 
