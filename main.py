@@ -130,7 +130,6 @@ def get_naver_data(word):
     try:
         search_url = f"https://terms.naver.com/search.naver?query={word}"
         res = requests.get(search_url, headers=HEADERS, timeout=20, verify=False)
-        time.sleep(2)
         soup = BeautifulSoup(res.text, "html.parser")
 
         links = soup.select("a[href*='/entry.naver?docId=']")
@@ -140,12 +139,18 @@ def get_naver_data(word):
         url = "https://terms.naver.com" + links[0]["href"]
 
         print(url)
+        time.sleep(5)
 
         
         detail = requests.get(url, headers=HEADERS, timeout=20, verify=False)
+        print(detail.text)
+
+
+
+
+        
         soup2 = BeautifulSoup(detail.text, "html.parser")
 
-        print(soup2)
 
         content = soup2.select_one("#size_ct")
         print(777777)
