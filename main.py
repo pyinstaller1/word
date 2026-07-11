@@ -76,6 +76,7 @@ def save_excel_safe(df):
             
             workbook  = writer.book
             worksheet = writer.sheets['IT용어사전']
+            worksheet.hide_gridlines(1)
 
             # --- 디자인 (짙고 산뜻한 파랑 헤더 / 흰색 글자) ---
             header_format = workbook.add_format({
