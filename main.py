@@ -1,5 +1,3 @@
-print(7)
-
 import pandas as pd
 import requests
 import asyncio
@@ -48,15 +46,13 @@ client = genai.Client(api_key=GEMINI_KEY)
 for m in client.models.list():
     print(m.name)
     
-print(7)
+
 print(GEMINI_KEY)
 
 def save_excel_safe(df):
     global current_output_file
 
-    print(777)
-    print(df)
-    
+
     target_order = [
         "용어", 
         "핵심 정의(Gemini)", 
@@ -117,7 +113,7 @@ def save_excel_safe(df):
 
 
 
-# 크롤링 함수들 (tta, naver, itwiki) - 이전과 동일
+# 크롤링 함수 (tta)
 def get_tta_data(word):
     try:
         res = requests.get(f"https://terms.tta.or.kr/dictionary/dictionaryView.do?subject={word}", headers=HEADERS, timeout=5)
@@ -126,59 +122,7 @@ def get_tta_data(word):
         return " ".join(target.get_text(separator=" ", strip=True).split()) if target else ""
     except: return ""
 
-def get_naver_data(word):
-    try:
-        search_url = f"https://terms.naver.com/search.naver?query={word}"
-        res = requests.get(search_url, headers=HEADERS, timeout=20, verify=False)
-        soup = BeautifulSoup(res.text, "html.parser")
 
-        links = soup.select("a[href*='/entry.naver?docId=']")
-        if not links:
-            return ""
-
-        url = "https://terms.naver.com" + links[0]["href"]
-
-        print(url)
-        time.sleep(5)
-
-        
-        detail = requests.get(url, headers=HEADERS, timeout=20, verify=False)
-        print(detail.text)
-
-
-
-
-        
-        soup2 = BeautifulSoup(detail.text, "html.parser")
-
-
-        content = soup2.select_one("#size_ct")
-        print(777777)
-        print(content.get_text(separator="\n", strip=True))
-        return content.get_text(separator="\n", strip=True) if content else ""
-
-    except Exception as e:
-        print("NAVER ERROR:", e)
-        return ""
-
-# --- IT위키 크롤링 함수 수정 (대문자 변환 추가) ---
-def get_itwiki_data(word):
-    try:
-        # IT위키는 대문자로 검색해야 404 에러가 안 납니다.
-        search_word = word.upper() 
-        res = requests.get(f"https://itwiki.kr/w/{search_word}", headers=HEADERS, timeout=5)
-        
-        if res.status_code != 200:
-            return ""
-            
-        soup = BeautifulSoup(res.text, "html.parser").select_one(".mw-parser-output")
-        if soup:
-            for tag in soup.select(".toc, .mw-editsection, .infobox"): 
-                tag.decompose()
-            return soup.get_text(separator="\n", strip=True)
-        return ""
-    except:
-        return ""
 
     
 
@@ -207,10 +151,8 @@ async def download():
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    print(88888888)
 
     await websocket.accept()
-    print(88888888888)
 
     try:
         data = await websocket.receive_text()
@@ -291,24 +233,14 @@ async def websocket_endpoint(websocket: WebSocket):
             tta = await asyncio.get_event_loop().run_in_executor(None, get_tta_data, word)
             await websocket.send_json({"msg": "✅ TTA 사전 크롤링 완료", "type": "detail", "word": word})
 
-                
-            # naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
-            # await websocket.send_json({"msg": "✅ 네이버사전 크롤링 완료", "type": "detail", "word": word})
 
-
-            
             final_results.append({
                 "용어": word,
                 "핵심 정의(Gemini)": gem_summary,
                 "제미나이 상세": gem_detail,
                 "GPT 상세": gpt_ans,
                 "TTA 정보통신": tta,
-                # "네이버 백과사전": naver
             })
-
-            print(naver)
-            print(888)
-            print(f"DEBUG: 저장 직전 데이터 확인: {final_results[-1]}")
 
             save_excel_safe(pd.DataFrame(final_results))
 
