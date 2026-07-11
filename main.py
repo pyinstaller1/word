@@ -63,7 +63,7 @@ def save_excel_safe(df):
         "제미나이 상세", 
         "GPT 상세", 
         "TTA 정보통신", 
-        "네이버 백과사전"
+        # "네이버 백과사전"
     ]
 
 
@@ -292,8 +292,8 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.send_json({"msg": "✅ TTA 사전 크롤링 완료", "type": "detail", "word": word})
 
                 
-            naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
-            await websocket.send_json({"msg": "✅ 네이버사전 크롤링 완료", "type": "detail", "word": word})
+            # naver = await asyncio.get_event_loop().run_in_executor(None, get_naver_data, word)
+            # await websocket.send_json({"msg": "✅ 네이버사전 크롤링 완료", "type": "detail", "word": word})
 
 
             
@@ -303,7 +303,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 "제미나이 상세": gem_detail,
                 "GPT 상세": gpt_ans,
                 "TTA 정보통신": tta,
-                "네이버 백과사전": naver
+                # "네이버 백과사전": naver
             })
 
             print(naver)
