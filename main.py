@@ -134,11 +134,14 @@ def get_naver_data(word):
         soup = BeautifulSoup(res.text, "html.parser")
 
         links = soup.select("a[href*='/entry.naver?docId=']")
-        print(links)
         if not links:
             return ""
 
         url = "https://terms.naver.com" + links[0]["href"]
+
+        print(url)
+
+        
         detail = requests.get(url, headers=HEADERS, timeout=20, verify=False)
         soup2 = BeautifulSoup(detail.text, "html.parser")
 
