@@ -59,7 +59,6 @@ def save_excel_safe(df):
         "제미나이 상세", 
         "GPT 상세", 
         "TTA 정보통신", 
-        # "네이버 백과사전"
     ]
 
 
@@ -92,7 +91,7 @@ def save_excel_safe(df):
 
             # --- 사용자 설정 수치 (너비 7, 30 / 높이 80) ---
             worksheet.set_column('A:A', 7, col1_format)
-            worksheet.set_column('B:F', 30, body_format)
+            worksheet.set_column('B:E', 30, body_format)
 
             for row_num in range(1, len(df) + 1):
                 worksheet.set_row(row_num, 80)
