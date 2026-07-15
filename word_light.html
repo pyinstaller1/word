@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html><html lang="ko"><head>
+    <meta charset="UTF-8">
+    <title>IT 용어집</title>
+    <style>
+        :root { --bright-blue: #007bff; --light-blue: #e7f1ff; --dark-blue: #0056b3; --text: #334155; --bg: #f8fafc; }
+        * { box-sizing: border-box; -ms-box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #f8fafc; margin: 0; padding: 20px; color: #334155; }
+        .wrap { max-width: 1250px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; border-top: 6px solid #007bff; box-shadow: 0 4px 20px rgba(0,123,255,0.1); min-height: 650px; }
+        h2 { text-align: center; color: #007bff; font-size: 24px; letter-spacing: 2px; margin-bottom: 10px; }
+        .top-controls { text-align: center; margin: 0 auto 30px auto; max-width: 500px; }
+        .top-controls input { width: 380px; height: 45px; padding: 0 15px; font-size: 14px; border: 2px solid #007bff; border-radius: 8px; font-weight: bold; color: #007bff; outline: none; vertical-align: middle; }
+        .top-controls button#toggleBtn { width: 100px; height: 45px; margin-left: 8px; vertical-align: middle; background: #fff; border: 1.5px solid #007bff; color: #007bff; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .list-area { overflow: hidden; width: 100%; }
+        .grid-item { float: left; width: 19.2%; margin: 0.4%; padding: 8px 10px; background: #fff; border: 1px solid #dee2e6; border-left: 3px solid #007bff; border-radius: 4px; font-size: 12px; color: #0056b3; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .grid-item span { color: #8a94a6; font-size: 10px; font-weight: normal; margin-left: 4px; }
+        .grid-item:hover { background: #007bff; color: white; }
+        .card { padding: 25px; border-radius: 10px; background: #fff; border: 1px solid #edf2f7; margin-bottom: 15px; position: relative; }
+        .ko { font-size: 20px; font-weight: 800; color: #007bff; border-bottom: 2px solid #e7f1ff; padding-bottom: 10px; }
+        .en { color: #adb5bd; margin-left: 10px; font-size: 14px; font-weight: normal; }
+        .content { font-size: 15px; color: #4a5568; margin-top: 15px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
+        .card-actions { position: absolute; top: 25px; right: 25px; }
+        .card-actions button { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 12px; margin-left: 5px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .tabs { border-bottom: 2px solid #e7f1ff; margin-bottom: 20px; overflow: hidden; }
+        .tab-btn { float: left; padding: 10px 25px; background: #f1f5f9; border-radius: 8px 8px 0 0; color: #64748b; font-size: 14px; border: none; cursor: pointer; margin-right: 5px; }
+        .tab-btn.active { background: #007bff; color: white; }
+        textarea { border: 2px solid #007bff; border-radius: 8px; padding: 15px; font-size: 14px; outline: none; resize: none; }
+        #inContent { width: 100%; max-width: 500px; height: 200px; display: block; }
+        #bulkText { width: 100%; max-width: 500px; height: 350px; display: block; }
+        #s {border: 1px solid #555555; }
+        input#s::placeholder { color: #888; opacity: 1; }
+        input#s { color: #888; opacity: 1; }
+        .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #cbd5e0; font-weight: bold; cursor: pointer; }
+
+        .card-actions-new { position: absolute; top: 25px; right: 25px; font-size: 12px; }
+        .card-actions-new span:hover { text-decoration: underline; }
+
+        /* 팝업 헤더 영역 */
+        .modal-header {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+
+
+        /* 팝업 컬럼 비율 최적화 (Version 2.2) */
+        .modal-col { 
+            display: flex; 
+            flex-direction: column; 
+            background: #fcfdfe; 
+            border-radius: 10px; 
+            border: 1px solid #e2e8f0; 
+            padding: 20px; 
+        }
+
+        /* 생성형 AI 답변 열을 극대화 (비율 4) */
+        .modal-col:nth-child(1), .modal-col:nth-child(2) {
+            flex: 4; 
+        }
+
+        /* 외부 사전 열은 최소화 (비율 1) */
+        .modal-col:nth-child(3) {
+            flex: 1; 
+            background: #f8fafc; /* 배경색을 살짝 눌러서 메인 답변이 더 돋보이게 */
+        }
+
+        .scroll-box { 
+            flex: 1; 
+            overflow-y: auto; 
+            font-size: 15px; /* 시원한 너비에 맞춰 폰트도 최적화 */
+            line-height: 1.8; 
+            white-space: pre-wrap; 
+            color: #334155; 
+            padding-right: 15px; 
+        }
+
+
+
+                     
+        .col-title { margin-top: 0; margin-bottom: 12px; font-size: 16px; border-bottom: 2px solid currentColor; padding-bottom: 8px; }
+        .scroll-box { flex: 1; overflow-y: auto; font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: #334155; padding-right: 10px; }
+        .sub-section { margin-bottom: 20px; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #f1f5f9; }
+        .sub-section strong { color: #007bff; display: block; margin-bottom: 5px; }
+
+        /* 스크롤바 디자인 */
+        .scroll-box::-webkit-scrollbar { width: 6px; }
+        .scroll-box::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
+
+
+
+                  
+    </style>
+</head>
+<body>
+
+<div class="wrap">
+    <div class="page" id="u">
+        <h2>정보관리실 <span style="color: rgb(85, 85, 85);">IT</span> 용어집</h2>
+        <div class="top-controls">
+            <input id="s" onkeyup="handleSearch()" type="text" placeholder="검색어를 입력하세요...">
+            <button id="toggleBtn" onclick="toggleAll()">전체보기</button>
+        </div>
+        <div class="list-area" id="l"></div>
+        <div id="btn_register" class="footer" onclick="go('a')" style="display: block;">용어 등록</div>
+    </div>
+
+    <div class="page active" id="a">
+        <h3 style="color: rgb(0, 123, 255); margin-bottom: 20px;">용어 등록</h3>
+
+
+
+
+
+
+
+        <div class="tabs">
+            <button class="tab-btn" id="btn-t1" onclick="openTab('t-single')">1건 등록</button>
+            <button class="tab-btn active" id="btn-t2" onclick="openTab('t-bulk')">엑셀 등록</button>
+        </div>
+
+
+
+
+        <div class="tab-content" id="t-single" style="display: none; padding: 0;">
+            <div style="margin-bottom: 10px; font-family: 'Malgun Gothic', sans-serif;">
+                <span style="font-weight: bold; color: #007bff;">한글명:</span> 
+                <input id="inKo" style="outline: none; border-radius: 6px; border: 2px solid #007bff; width: 150px; height: 35px; padding: 0 10px; margin-right: 15px;" type="text">                               
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+                <div style="width: 500px;">
+                    <textarea id="inContent" style="width: 100%; height: 350px; padding: 12px; border: 2px solid #007bff; border-radius: 8px; font-family: 'Malgun Gothic', sans-serif; font-size: 13px; display: block;" placeholder="내용을 입력하세요..."></textarea>
+                    
+                    <div style="text-align: right; margin-top: 10px;">
+                        <button style="background: #007bff; color: white; width: 150px; height: 45px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Malgun Gothic', sans-serif;" onclick="addSingle()">저장</button>
+                        <button style="background: white; border: 1.5px solid #007bff; width: 150px; height: 45px; color: #007bff; border-radius: 6px; font-weight: bold; margin-left: 10px; cursor: pointer; font-family: 'Malgun Gothic', sans-serif;" onclick="go('u')">검색화면 복귀</button>
+                    </div>
+                </div>
+
+                <div style="width: 400px; background: #f1f5f9; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e0;">
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; color: #007bff; margin-bottom: 2px;">🧭 Gemini</label>
+                        <textarea id="inGemini" style="width: 100%; height: 65px; border: 1px solid #007bff; border-radius: 4px; padding: 5px; font-size: 12px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; color: #10a37f; margin-bottom: 2px;">🤖 GPT</label>
+                        <textarea id="inGpt" style="width: 100%; height: 65px; border: 1px solid #10a37f; border-radius: 4px; padding: 5px; font-size: 12px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 12px; font-weight: bold; color: #f59e0b; margin-bottom: 2px;">📚 TTA 사전</label>
+                        <textarea id="inTta" style="width: 100%; height: 45px; border: 1px solid #f59e0b; border-radius: 4px; padding: 5px; font-size: 12px;"></textarea>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 2px;">🌐 네이버 사전</label>
+                        <textarea id="inWeb" style="width: 100%; height: 45px; border: 1px solid #64748b; border-radius: 4px; padding: 5px; font-size: 12px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="tab-content" id="t-bulk" style="display: block; padding: 10px;">
+            <div style="background: #e7f1ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #007bff; max-width: 500px;">
+                <h4 style="margin: 0 0 5px 0; color: #0056b3;">🧭 엑셀 전체 복사</h4>
+                <p style="font-size: 13px; color: #334155; margin: 0; line-height: 1.6;">
+                    <strong>IT용어_엑셀.xlsx</strong> 파일을 열어 시트 전체를 복사한 뒤, 입력창에 붙여넣기 하세요.
+                </p>
+            </div>
+            
+            <textarea id="bulkText" style="width: 100%; max-width: 500px; height: 350px; padding: 12px; border: 2px solid #007bff; border-radius: 8px; font-family: 'Malgun Gothic', sans-serif; font-size: 13px; display: block;" placeholder="여기에 붙여넣으세요..."></textarea>
+            
+            <div style="max-width: 500px; text-align: right; margin-top: 15px;">
+                <button style="background: #007bff; color: white; width: 150px; height: 45px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;" onclick="parseBulk()">저장</button>
+                <button style="background: white; border: 1.5px solid #007bff; width: 150px; height: 45px; color: #007bff; border-radius: 6px; font-weight: bold; margin-left: 10px; cursor: pointer;" onclick="go('u')">검색화면 복귀</button>
+            </div>
+        </div>
+
+
+
+
+
+
+
+                                               
+    </div>
+</div>
+
+<script>
+    // [DATA_START]
+    var db = [
+    {
+        "ko": "가상머신",
+        "content": "실제로 있는 컴퓨터 시스템을 여러 명의 사용자가 동시에 사용할 수 있게 하기 위해서 그 컴퓨터 시스템을 마치 여러 대의 작은 컴퓨터 시스템이 있는 것처럼 분할하여 만든 것.",
+        "gemini": "## 가상 머신 (Virtual Machine, VM) 기술적 정의 및 핵심 원리\n\n**정의:**\n\n가상 머신(Virtual Machine, VM)은 물리적인 하드웨어 자원(CPU, 메모리, 스토리지, 네트워크)을 추상화하여 운영체제(OS) 및 애플리케이션이 마치 독립적인 물리적 환경에서 실행되는 것처럼 보이도록 하는 소프트웨어 환경입니다.  즉, 하나의 물리적 서버 위에 여러 개의 논리적인 서버를 구성하여 각 가상 머신이 자체적인 운영체제와 애플리케이션을 독립적으로 실행할 수 있도록 합니다.\n\n**핵심 원리:**\n\n가상 머신 기술은 크게 두 가지 아키텍처로 나눌 수 있으며, 각 아키텍처는 서로 다른 핵심 원리에 기반합니다.\n\n1.  **하이퍼바이저 (Hypervisor) 기반 가상화:**\n\n    *   **Type 1 (Bare-metal Hypervisor):** 하이퍼바이저가 물리적 하드웨어 위에 직접 설치되어 하드웨어 자원을 관리하고 각 가상 머신에 할당합니다.  운영체제를 거치지 않으므로 성능 오버헤드가 적고 자원 관리 효율성이 높습니다. 대표적인 예로는 VMware ESXi, Microsoft Hyper-V (Server Core), Citrix XenServer 등이 있습니다.\n\n        *   **핵심 원리:**\n            *   **하드웨어 추상화 (Hardware Abstraction):** 하이퍼바이저는 하드웨어와 가상 머신 사이의 인터페이스 역할을 수행하며, 하드웨어 자원을 추상화하여 각 가상 머신에 제공합니다.\n            *   **자원 스케줄링 (Resource Scheduling):** CPU, 메모리, 스토리지 등 하드웨어 자원을 각 가상 머신에 할당하고 관리하여 자원 경쟁을 방지하고 공정한 사용을 보장합니다.\n            *   **격리 (Isolation):** 각 가상 머신은 서로 격리되어 있어, 하나의 가상 머신에서 발생한 오류나 보안 문제가 다른 가상 머신에 영향을 미치지 않도록 합니다.\n            *   **특권 명령어 처리 (Privileged Instruction Handling):** 가상 머신 내부의 운영체제가 특권 명령어를 실행하려고 할 때, 하이퍼바이저가 이를 가로채어 처리함으로써 시스템의 안정성을 유지합니다.\n    *   **Type 2 (Hosted Hypervisor):** 기존 운영체제(호스트 OS) 위에 하이퍼바이저가 설치되어 가상 머신을 생성하고 관리합니다.  호스트 OS를 거쳐 하드웨어 자원에 접근하므로 Type 1에 비해 성능 오버헤드가 높지만, 설치 및 사용이 간편합니다. 대표적인 예로는 VMware Workstation, Oracle VirtualBox 등이 있습니다.\n\n        *   **핵심 원리:** Type 1과 유사하지만, 하드웨어 자원 접근에 호스트 OS를 거치므로 다음과 같은 차이점이 있습니다.\n            *   **시스템 콜 인터셉트 (System Call Interception):** 가상 머신 내부의 운영체제가 시스템 콜을 호출하면 하이퍼바이저가 이를 가로채어 호스트 OS를 통해 처리합니다.\n            *   **성능 오버헤드 (Performance Overhead):** 호스트 OS를 거쳐 하드웨어 자원에 접근하므로 Type 1에 비해 성능 오버헤드가 발생합니다.\n\n2.  **운영체제 수준 가상화 (OS-level Virtualization) / 컨테이너 (Container):**\n\n    *   커널 수준에서 격리된 프로세스 공간을 제공하여 여러 개의 독립적인 애플리케이션 실행 환경을 구축합니다.  하이퍼바이저 기반 가상화와 달리 게스트 OS를 포함하지 않으므로 자원 소비가 적고 가볍습니다. 대표적인 예로는 Docker, LXC 등이 있습니다.\n\n        *   **핵심 원리:**\n            *   **네임스페이스 (Namespace):** 프로세스, 네트워크, 마운트 지점 등 시스템 자원에 대한 격리된 뷰를 제공합니다. 각 컨테이너는 독립적인 네임스페이스를 가지므로 서로 영향을 미치지 않습니다.\n            *   **Cgroups (Control Groups):** CPU, 메모리, I/O 등 시스템 자원의 사용량을 제한하고 관리합니다. 각 컨테이너는 할당된 자원 내에서만 동작하며, 자원 경쟁을 방지합니다.\n            *   **공유 커널 (Shared Kernel):** 모든 컨테이너는 호스트 OS의 커널을 공유합니다.  따라서 게스트 OS를 포함하는 하이퍼바이저 기반 가상화보다 가볍고 빠르게 실행됩니다.\n            *   **Copy-on-Write:** 변경 사항이 발생할 때만 데이터를 복사하는 방식으로, 저장 공간을 효율적으로 사용합니다.  컨테이너 이미지를 기반으로 컨테이너를 생성할 때, 변경된 부분만 레이어로 저장하여 디스크 공간을 절약합니다.\n\n**가상 머신 기술의 주요 이점:**\n\n*   **자원 활용률 향상:** 물리적 서버의 자원을 효율적으로 사용하여 서버 통합 및 비용 절감 효과를 얻을 수 있습니다.\n*   **유연성 및 확장성:** 필요에 따라 가상 머신을 쉽게 생성, 삭제, 복제할 수 있어 시스템 구축 및 관리가 용이합니다.\n*   **고가용성:** 가상 머신을 다른 물리적 서버로 마이그레이션하여 장애 발생 시 서비스 중단 시간을 최소화할 수 있습니다.\n*   **테스트 및 개발 환경:** 다양한 운영체제 및 애플리케이션 환경을 가상 머신으로 구성하여 테스트 및 개발 환경을 구축할 수 있습니다.\n*   **보안 강화:** 가상 머신 간 격리를 통해 보안 위협 확산을 방지하고 시스템 보안을 강화할 수 있습니다.\n\n**결론:**\n\n가상 머신 기술은 IT 인프라의 효율성을 극대화하고 유연성을 높이는 데 핵심적인 역할을 합니다. 하이퍼바이저 기반 가상화와 운영체제 수준 가상화는 서로 다른 장단점을 가지므로, 애플리케이션의 요구 사항 및 환경에 따라 적절한 기술을 선택해야 합니다.  최근에는 컨테이너 기술이 더욱 발전하면서 마이크로서비스 아키텍처 (MSA)와 함께 클라우드 환경에서 더욱 널리 사용되고 있습니다.",
+        "gpt": "가상머신(Virtual Machine, VM)은 컴퓨팅 환경의 추상화를 통해 물리적인 컴퓨터 하드웨어 위에 독립적인 시스템을 구축하고 운영할 수 있는 기술입니다. 이는 물리적 하드웨어의 제약 없이 다양한 운영체제 및 애플리케이션을 효율적으로 실행할 수 있도록 지원합니다.\n\n### 기술적 정의:\n가상머신은 호스트 시스템 상에서 소프트웨어로 구현된 컴퓨터 시스템입니다. VM은 물리적 하드웨어의 기능을 소프트웨어 레벨에서 에뮬레이션하여 게스트 운영체제 및 애플리케이션을 실행합니다. 가상머신은 보통 하이퍼바이저(Hypervisor)라는 소프트웨어 계층을 통해 생성 및 관리되며, 이 하이퍼바이저가 가상화된 하드웨어 자원을 게스트 운영체제에게 제공합니다.\n\n### 핵심 원리:\n1. **하드웨어 추상화**: VM은 물리적 하드웨어를 소프트웨어적으로 추상화하여, 다양한 운영체제가 동일한 하드웨어에서 실행될 수 있도록 합니다. 이를 통해 시스템 간의 격리와 독립성을 유지할 수 있습니다.\n\n2. **하이퍼바이저**: 하이퍼바이저는 가상화를 위한 핵심 소프트웨어로, VM을 생성 및 관리합니다. 하이퍼바이저는 물리 서버의 리소스를 가상화하여 여러 VM에 분배합니다. 하이퍼바이저는 크게 두 가지 유형으로 분류됩니다.\n   - **타입 1 하이퍼바이저(네이티브 또는 베어메탈)**: 직접 서버 하드웨어에서 실행되며, 높은 성능과 보안을 제공합니다. 예시로는 VMware ESXi, Microsoft Hyper-V, Xen 등이 있습니다.\n   - **타입 2 하이퍼바이저(호스트형)**: 기존 운영체제 위에서 애플리케이션 형태로 실행됩니다. VMware Workstation, Oracle VirtualBox 등이 이에 해당합니다.\n\n3. **자원 할당 및 관리**: 하이퍼바이저는 CPU, 메모리, 스토리지, 네트워크 등 하드웨어 자원을 가상머신에게 동적으로 할당하고 관리합니다. 이를 통해 물리적 서버의 자원을 효율적으로 분배하고, 필요에 따라 자원을 조정할 수 있습니다.\n\n4. **격리 및 보안**: 각 가상머신은 서로 독립적으로 운영되며, 한 VM에서 발생한 문제는 다른 VM에 영향을 미치지 않습니다. 이를 통해 향상된 보안과 장애 복원력을 제공합니다.\n\n5. **스냅샷 및 이식성**: VM의 상태를 스냅샷으로 저장할 수 있으며, 이를 통해 특정 시점으로의 복구가 가능합니다. VM은 파일 형태로 저장되어 다른 하드웨어로 쉽게 이동할 수 있어, 서버 유지보수 및 클라우드 마이그레이션에 유용합니다.\n\n이러한 원리와 특성을 통해 가상머신은 클라우드 컴퓨팅, 개발 환경의 구축, 테스트 및 배포 자동화 등 다양한 분야에서 광범위하게 활용되고 있습니다.",
+        "tta": "실제로 있는 컴퓨터 시스템 에서 소프트웨어적으로 구성하여 만들어진 또 다른 가상의 컴퓨터. 하나의 컴퓨터를 여러 명의 사용자가 동시에 사용할 수 있도록 여러 대의 작은 컴퓨터로 분할 사용하거나, 운영체계나 하드웨어 등의 구성을 달리하여 운영하고자 할 때 주로 사용된다.",
+        "naver": "약어\nVM\n실제로 있는\n컴퓨터 시스템\n에서\n소프트웨어\n적으로 구성하여 만들어진 또 다른 가상의 컴퓨터.\n하나의 컴퓨터를 여러 명의 사용자가 동시에 사용할 수 있도록 여러 대의 작은 컴퓨터로 분할 사용하거나, 운영체계나\n하드웨어\n등의 구성을 달리하여 운영하고자 할 때 주로 사용된다.",
+    },
+
+
+
+
+
+
+
+
+
+
+];
+    // [DATA_END]
+                  
+    var isShowingAll = false;
+    var currentPage = 1;      // 현재 페이지
+    var itemsPerPage = 60;   // 한 페이지에 보여줄 개수 (5열 기준 20줄)
+
+
+    if (1 === 1) {   // if (['12345', '67890', '11223'].includes(emp_no))
+        document.getElementById('btn_register').style.display = 'block';
+    }                                               
+                  
+
+    function go(id) {
+        var p = document.getElementsByClassName('page');
+        for(var i=0; i<p.length; i++) p[i].className = 'page';
+        document.getElementById(id).className = 'page active';
+        if(id === 'u') {
+            document.getElementById('s').value = '';
+            document.getElementById('l').innerHTML = '';
+            isShowingAll = false;
+            document.getElementById('toggleBtn').innerText = "전체보기";
+        }
+    }
+
+
+
+    function openTab(id) {
+        // 컨텐츠 영역 표시/숨김
+        document.getElementById('t-single').style.display = (id === 't-single' ? 'block' : 'none');
+        document.getElementById('t-bulk').style.display = (id === 't-bulk' ? 'block' : 'none');
+
+        // 버튼 활성화 클래스 교체
+        document.getElementById('btn-t1').className = (id === 't-single' ? 'tab-btn active' : 'tab-btn');
+        document.getElementById('btn-t2').className = (id === 't-bulk' ? 'tab-btn active' : 'tab-btn');
+    }
+
+
+
+
+
+function handleSearch() {
+    var sInput = document.getElementById('s');
+    if (!sInput) return;
+    
+    var q = sInput.value.toLowerCase().replace(/^\s+|\s+$/g, '');
+    var list = document.getElementById('l');
+
+    if(q !== "") { 
+        isShowingAll = false; 
+        document.getElementById('toggleBtn').innerText = "전체보기"; 
+    }
+    
+    if(!q) { list.innerHTML = ''; return; }
+
+    function highlight(text, query) {
+        if(!text || !query) return text;
+        var re = new RegExp('(' + query + ')', 'gi');
+        return text.replace(re, '<mark style="background: yellow; color: black; font-weight: bold; padding: 0 2px;">$1</mark>');
+    }
+
+    // 1. 결과 바구니를 미리 확실하게 선언 (ReferenceError 방지)
+    var res1 = []; // 제목 매칭용
+    var res2 = []; // 내용 매칭용
+
+    for(var i=0; i<db.length; i++) {
+        var item = db[i];
+        var targetKo = (item.ko || "").toLowerCase();
+        var targetContent = (item.content || "").toLowerCase();
+
+        // 제목(한글명)에 포함되어 있는지 먼저 체크
+        if (targetKo.indexOf(q) > -1) {
+            res1.push(item);
+        } 
+        // 제목에는 없지만 내용에 포함되어 있는지 체크
+        else if (targetContent.indexOf(q) > -1) {
+            res2.push(item);
+        }
+    }
+
+    // 2. IE에서 순서를 보장하기 위해 새 배열에 직접 순서대로 푸시
+    var finalRes = [];
+    for(var j=0; j<res1.length; j++) { finalRes.push(res1[j]); }
+    for(var k=0; k<res2.length; k++) { finalRes.push(res2[k]); }
+    
+    // 3. HTML 생성 로직
+    var html = '';
+    var linkStyle = 'cursor:pointer; font-size:12px; font-weight:bold; margin-left:10px;';
+
+    for(var m=0; m<finalRes.length; m++) {
+        var it = finalRes[m];
+        var showKo = it.ko;
+        var showContent = highlight(it.content, q);
+
+        var links = [];
+        // 관리자 버튼 (IE 호환성을 위해 1===1 조건 유지)
+        if (1 === 1) {            
+            links.push('<span onclick="updateItem(\'' + it.ko + '\')" style="' + linkStyle + ' color:#94a3b8;">수정</span>');
+            links.push('<span onclick="deleteItemQuick(\'' + it.ko + '\')" style="' + linkStyle + ' color:#ef4444;">삭제</span>');
+        }
+        
+        if(it.gemini) links.push('<span onclick="showAI(\'' + it.ko + '\')" style="' + linkStyle + ' color:#007bff;">[제미나이]</span>');
+        if(it.gpt)    links.push('<span onclick="showAI(\'' + it.ko + '\')" style="' + linkStyle + ' color:#10a37f;">[GPT]</span>');
+        if(it.tta || it.naver) {
+            links.push('<span onclick="showAI(\'' + it.ko + '\')" style="' + linkStyle + ' color:#f59e0b;">[웹사전]</span>');
+        }
+
+        html += '<div class="card" style="position:relative;">';
+        html += '<div style="position:absolute; top:25px; right:25px;">' + links.join('') + '</div>';
+        html += '<div class="ko">' + showKo + '</div>' +
+                '<div class="content">' + showContent + '</div></div>';
+    }
+    list.innerHTML = html;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  
+
+    function viewOne(ko) {
+        document.getElementById('s').value = ko; // 검색창에 단어 입력
+        isShowingAll = false;                    // 전체보기 모드 해제
+        handleSearch();                          // 검색 실행
+        window.scrollTo(0, 0);                   // 화면 상단으로 이동
+    }
+
+    function toggleAll(page) {
+        var list = document.getElementById('l');
+        
+        // 페이지 설정
+        if (page) {
+            currentPage = page;
+        } else {
+            if (isShowingAll) { 
+                list.innerHTML = ''; 
+                isShowingAll = false; 
+                document.getElementById('toggleBtn').innerText = "전체보기";
+                return;
+            }
+            currentPage = 1;
+        }
+
+        document.getElementById('s').value = '';
+        isShowingAll = true;
+        document.getElementById('toggleBtn').innerText = "전체보기닫기";
+
+        // 1. 정렬
+        db.sort(function(a, b) {
+            var aVal = a.ko;
+            var bVal = b.ko;
+
+            // 우선순위 판별 함수 (한글:1, 영어:2, 숫자/기타:3)
+            function getPriority(str) {
+                var char = str.trim().charAt(0);
+                if (/[가-힣]/.test(char)) return 1; // 한글
+                if (/[a-zA-Z]/.test(char)) return 2; // 영어
+                return 3; // 숫자 및 기타
+            }
+
+            var pA = getPriority(aVal);
+            var pB = getPriority(bVal);
+
+            if (pA !== pB) return pA - pB; // 그룹이 다르면 한글 > 영어 > 숫자 순
+            return aVal.localeCompare(bVal); // 같은 그룹 내에서는 사전순
+        });
+
+        // 2. 페이징 계산
+        var totalPages = Math.ceil(db.length / itemsPerPage);
+        var start = (currentPage - 1) * itemsPerPage;
+        var end = start + itemsPerPage;
+        var pagedData = db.slice(start, end);
+
+        // 3. 그리드 아이템 출력
+        var html = '<div style="width:100%; overflow:hidden; display:block;">';
+        for (var i = 0; i < pagedData.length; i++) {
+            html += '<div class="grid-item" onclick="viewOne(\'' + pagedData[i].ko + '\')">' +
+                    pagedData[i].ko + '</div>';
+                    // pagedData[i].ko + '<span>(' + (pagedData[i].en || '') + ')</span></div>';
+            
+        }
+
+        html += '</div>';
+
+
+        // 4. 스마트 페이지 네비게이션 (더 작고 깔끔한 스타일)
+        if (totalPages > 1) {
+            html += '<div class="pagination" style="width:100%; text-align:center; margin-top:30px; clear:both; padding:20px 0; font-family:sans-serif;">';
+            
+            // 공통 스타일 변수 (글자 크기를 12px로 축소)
+            var commonStyle = 'cursor:pointer; margin:0 2px; padding:4px 8px; border-radius:3px; font-size:12px; display:inline-block; transition:all 0.2s; ';
+
+            // [처음/이전] 버튼
+            if (currentPage > 1) {
+                html += '<span style="' + commonStyle + ' border:1px solid #eee; color:#999;" onclick="toggleAll(1)">« 처음</span>';
+                html += '<span style="' + commonStyle + ' border:1px solid #eee; color:#999;" onclick="toggleAll(' + (currentPage - 1) + ')">‹ 이전</span>';
+            }
+
+            // 페이지 번호 노출 범위 (현재 페이지 앞뒤 2개)
+            var startPage = Math.max(1, currentPage - 2);
+            var endPage = Math.min(totalPages, startPage + 4);
+            if (endPage === totalPages) startPage = Math.max(1, endPage - 4);
+
+            for (var i = startPage; i <= endPage; i++) {
+                var isCurrent = (i === currentPage);
+                var btnStyle = isCurrent 
+                    ? 'background:#007bff; color:white; border:1px solid #007bff; font-weight:bold;' 
+                    : 'background:white; color:#64748b; border:1px solid #eee;';
+                
+                html += '<span style="' + commonStyle + btnStyle + '" onclick="toggleAll(' + i + ')">' + i + '</span>';
+            }
+
+            // [다음/끝] 버튼
+            if (currentPage < totalPages) {
+                html += '<span style="' + commonStyle + ' border:1px solid #eee; color:#999;" onclick="toggleAll(' + (currentPage + 1) + ')">다음 ›</span>';
+                html += '<span style="' + commonStyle + ' border:1px solid #eee; color:#999;" onclick="toggleAll(' + totalPages + ')">끝 »</span>';
+            }
+
+            html += '<div style="margin-top:10px; font-size:11px; color:#cbd5e0;">' + currentPage + ' / ' + totalPages + '</div>';
+            html += '</div>';
+        }
+
+        list.innerHTML = html;
+        window.scrollTo(0, 0);
+    }
+
+
+    function parseBulk() {
+        var text = document.getElementById('bulkText').value;
+        if (!text.trim()) { alert("데이터를 입력해주세요."); return; }
+
+        // [Print] 원본 데이터가 어떻게 들어오는지 콘솔에 찍어서 확인해봅시다.
+        console.log("--- 원본 데이터 샘플 (첫 500자) ---");
+        console.log(text.substring(0, 500));
+
+        var rows = [];
+        var row = [];
+        var curr = "";
+        var inQuote = false;
+
+        // 1. [정밀 분석] 탭(\t)과 따옴표("), 줄바꿈(\n)을 추적하며 한 땀 한 땀 파싱
+        for (var i = 0; i < text.length; i++) {
+            var char = text[i];
+            var next = text[i + 1];
+
+            if (char === '"' && inQuote && next === '"') { // 쌍따옴표 처리
+                curr += '"'; i++;
+            } else if (char === '"') { // 따옴표 시작/끝
+                inQuote = !inQuote;
+            } else if (char === '\t' && !inQuote) { // 열 구분 (탭)
+                row.push(curr); curr = "";
+            } else if ((char === '\n' || char === '\r') && !inQuote) { // 진짜 행 구분
+                if (char === '\r' && next === '\n') i++; 
+                row.push(curr);
+                rows.push(row);
+                row = []; curr = "";
+            } else {
+                curr += char;
+            }
+        }
+        if (curr || row.length > 0) { row.push(curr); rows.push(row); }
+
+        var added = 0;
+        var dupes = 0;
+
+        // 2. 데이터 처리 루프
+        for (var i = 0; i < rows.length; i++) {
+            var cols = rows[i];
+            if (cols.length < 2) continue;
+
+            var ko = cols[0].trim();
+
+            if (ko === "용어" || ko.indexOf("수동정의") > -1) {
+                console.log("제목줄 통과: ", ko);
+                continue;
+            }
+
+            // 중복 체크 및 저장
+            var isExist = db.some(function(item) { return item.ko === ko; });
+            if (!isExist && ko !== "") {
+                db.push({
+                    "ko": ko,
+                    "content": cols[1] || "",
+                    "gemini":  cols[2] || "",
+                    "gpt":     cols[3] || "",
+                    "tta":     cols[4] || "",
+                    "naver":   cols[5] || "",
+                });
+                added++;
+            } else {
+                dupes++;
+            }
+        }
+
+        alert("분석 완료!\n- 신규 등록: " + added + "건\n- 중복/제목 제외: " + dupes + "건");
+        saveFile(added);
+        go('u');
+    }
+                                               
+
+                                               
+                  
+
+
+        
+    function addSingle() {
+        var ko = document.getElementById('inKo').value.trim();
+        if(!ko) { alert("한글명은 필수입니다."); return; }
+
+        db.push({
+            "ko": ko,
+            "content": document.getElementById('inContent').value,
+            "gemini": document.getElementById('inGemini').value,
+            "gpt": document.getElementById('inGpt').value,
+            "tta": document.getElementById('inTta').value,
+            "naver": document.getElementById('inWeb').value
+        });
+
+        saveFile(1);
+        go('u');
+    }
+
+
+    function deleteItemQuick(ko) {
+        if(!confirm("'" + ko + "' 항목을 정말 삭제하시겠습니까?")) return;
+        
+        var temp = [];
+        for(var i=0; i<db.length; i++) { if(db[i].ko !== ko) temp.push(db[i]); }
+        db = temp;
+        saveFile();
+    }
+
+        
+        
+    // 2. 수정 버튼 클릭 시 데이터 로드 로직 수정
+    function editItem(ko) {
+        var item;
+        for(var i=0; i<db.length; i++) { if(db[i].ko === ko) { item = db[i]; break; } }
+        if(!item) return;
+
+        document.getElementById('inKo').value = item.ko;
+        document.getElementById('inContent').value = item.content || "";
+        // 추가 필드 로드
+        document.getElementById('inGemini').value = item.gemini || "";
+        document.getElementById('inGpt').value = item.gpt || "";
+        document.getElementById('inTta').value = item.tta || "";
+        document.getElementById('inWeb').value = item.naver || "";
+
+        var temp = [];
+        for(var i=0; i<db.length; i++) { if(db[i].ko !== ko) temp.push(db[i]); }
+        db = temp;
+        go('a');
+        openTab('t-single');
+    }
+
+        
+    function saveFile(addedCount) {
+        // 1. 입력 필드 초기화 (원본 유지 + 누락되었던 필드 추가)
+        document.getElementById('bulkText').value = ''; 
+        document.getElementById('inKo').value = '';
+        document.getElementById('inContent').value = '';
+        document.getElementById('inGemini').value = ''; // 누락 방지 추가
+        document.getElementById('inGpt').value = '';
+        document.getElementById('inTta').value = '';
+        document.getElementById('inWeb').value = '';   // 누락 방지 추가
+
+        // 2. 데이터 정렬 (원본 로직: 한글 > 영어 > 숫자 순)
+        db.sort(function(a, b) {
+            var aVal = a.ko || "";
+            var bVal = b.ko || "";
+            function getPriority(str) {
+                var char = str.trim().charAt(0);
+                if (/[가-힣]/.test(char)) return 1;
+                if (/[a-zA-Z]/.test(char)) return 2;
+                return 3;
+            }
+            var pA = getPriority(aVal);
+            var pB = getPriority(bVal);
+            if (pA !== pB) return pA - pB;
+            return aVal.localeCompare(bVal);
+        });
+
+        // 3. 현재 문서의 전체 텍스트(HTML) 가져오기
+        var html = document.documentElement.outerHTML;
+
+        // 4. 데이터 영역 마커 (정확히 일치 유지)
+        var startMark = "// [DATA_START]";
+        var endMark = "// [DATA_END]";
+        
+        // 5. [핵심] 기존 데이터 블록 위치 찾기
+        var startIndex = html.indexOf(startMark);
+        var endIndex = html.indexOf(endMark);
+
+        if (startIndex === -1 || endIndex === -1) {
+            alert("⚠️ 데이터 영역 마커(// [DATA_START] 또는 // [DATA_END])를 찾을 수 없습니다. 코드를 확인해주세요.");
+            return;
+        }
+
+        // 6. 새로운 데이터 블록 생성 (전체 db 배열을 JSON화)
+        var newDataSection = startMark + "\n    var db = " + JSON.stringify(db, null, 4) + ";\n    ";
+        
+        // 7. [수정] 문자열 슬라이싱 방식으로 안전하게 결합 (원본 방식 유지)
+        var finalHtml = "<!DOCTYPE html>\n<html>" + 
+                        html.substring(0, startIndex) + 
+                        newDataSection + 
+                        html.substring(endIndex);
+
+        // 8. 파일 저장 실행 (Blob 및 IE 호환 로직 포함 원본 유지)
+        var blob = new Blob([finalHtml], { type: 'text/html' });
+        var filename = "word.html";
+
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+        }
+
+        if (addedCount) {
+            alert("✅ 성공! " + addedCount + "건의 데이터가 저장되었습니다.");
+        } else {
+            alert("✅ 성공! 총 " + db.length + "건의 데이터가 손실 없이 저장되었습니다.");
+        }
+    }
+
+
+function showAI(ko) {
+    // 1. find 대신 반복문 사용 (IE는 배열.find를 지원하지 않음)
+    var item = null;
+    for (var i = 0; i < db.length; i++) {
+        if (db[i].ko === ko) {
+            item = db[i];
+            break;
+        }
+    }
+    
+    if(!item) return;
+
+    document.getElementById('modalTitle').innerText = "AI 분석";
+    
+    // 2. 백틱(`) 대신 문자열 합치기(+) 사용
+    // Gemini 영역
+    var geminiHtml = item.gemini 
+        ? item.gemini.replace(/\n/g, '<br>') 
+        : '<div style="color:#ccc; text-align:center; margin-top:50px;">제미나이 답변이 없습니다.</div>';
+    document.getElementById('m-gemini').innerHTML = geminiHtml;
+        
+    // GPT 영역
+    var gptHtml = item.gpt 
+        ? item.gpt.replace(/\n/g, '<br>') 
+        : '<div style="color:#ccc; text-align:center; margin-top:50px;">GPT 답변이 없습니다.</div>';
+    document.getElementById('m-gpt').innerHTML = gptHtml;
+        
+    // 외부 사전 영역
+    var dictHtml = "";
+    if(item.tta) dictHtml += "<div class='sub-section'><strong>[TTA 사전]</strong><br>" + item.tta + "</div><hr>";
+    if(item.naver) dictHtml += "<div class='sub-section'><strong>[네이버 사전]</strong><br>" + item.naver + "</div><hr>";
+    
+    document.getElementById('m-wiki-area').innerHTML = dictHtml || '<div style="color:#ccc; text-align:center; margin-top:50px;">등록된 외부 사전 정보가 없습니다.</div>';
+
+    // 팝업 보이기
+    document.getElementById('aiModal').style.display = 'block';
+}
+
+
+
+
+function updateItem(ko) {
+    var item;
+    for (var i = 0; i < db.length; i++) {
+        if (db[i].ko === ko) {
+            item = db[i];
+            break;
+        }
+    }
+    if (!item) return;
+
+    document.getElementById('inKo').value = item.ko;
+    document.getElementById('inContent').value = item.content || "";
+    document.getElementById('inGemini').value = item.gemini || "";
+    document.getElementById('inGpt').value = item.gpt || "";
+    document.getElementById('inTta').value = item.tta || "";
+    document.getElementById('inWeb').value = item.naver || "";
+
+    go('a');
+    openTab('t-single');
+}
+
+
+
+    // 초기 실행
+    window.onload = function() { go('u'); };
+</script>
+
+
+
+
+
+
+
+
+
+
+<div id="aiModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2000;">
+    <div style="position:relative; width:98%; max-width:1800px; height:90vh; margin:2vh auto; background:#fff; padding:25px; border-radius:12px; display:flex; flex-direction:column; box-shadow: 0 10px 50px rgba(0,0,0,0.5);">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:2px solid #f1f5f9; padding-bottom:15px;">
+            <h2 id="modalTitle" style="color:#007bff; margin:0; font-size:26px; font-weight: 800;"></h2>
+            <button onclick="closeModal()" style="padding:10px 40px; cursor:pointer; background:#475569; color:white; border:none; border-radius:8px; font-weight:bold; font-size:16px;">창 닫기</button>
+        </div>
+
+        <div style="display:flex; flex:1; gap:20px; overflow:hidden;">
+            <div class="modal-col" style="border-top: 6px solid #007bff;">
+                <h4 class="col-title" style="color:#007bff; font-size: 19px;">🧭 제미나이 답변</h4>
+                <div id="m-gemini" class="scroll-box"></div>
+            </div>
+            <div class="modal-col" style="border-top: 6px solid #10a37f;">
+                <h4 class="col-title" style="color:#10a37f; font-size: 19px;">🤖 GPT 답변</h4>
+                <div id="m-gpt" class="scroll-box"></div>
+            </div>
+            <div class="modal-col" style="border-top: 6px solid #f59e0b;">
+                <h4 class="col-title" style="color:#f59e0b; font-size: 17px;">🧩 외부 사전</h4>
+                <div id="m-wiki-area" class="scroll-box" style="font-size: 13px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 팝업 닫기 함수 추가 (스크립트 영역에 넣어주세요)
+    function closeModal() {
+        document.getElementById('aiModal').style.display = 'none';
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+</body></html>
