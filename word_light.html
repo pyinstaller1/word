@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html><html lang="ko"><head>
     <meta charset="UTF-8">
     <title>IT 용어집</title>
@@ -226,7 +226,7 @@
     }                                               
                   
 
-    function go(id) {
+    function go8(id) {
         var p = document.getElementsByClassName('page');
         for(var i=0; i<p.length; i++) p[i].className = 'page';
         document.getElementById(id).className = 'page active';
@@ -238,6 +238,34 @@
         }
     }
 
+
+function go(id, mode) {
+
+    var p = document.getElementsByClassName('page');
+    for(var i=0; i<p.length; i++) {
+        p[i].className = 'page';
+    }
+
+    document.getElementById(id).className = 'page active';
+
+
+    if(id === 'a') {
+
+        if(mode === 'update') {
+            // 수정 화면
+            openTab('t-single');
+        }
+
+    }
+
+
+    if(id === 'u') {
+        document.getElementById('s').value = '';
+        document.getElementById('l').innerHTML = '';
+        isShowingAll = false;
+        document.getElementById('toggleBtn').innerText = "전체보기";
+    }
+}
 
 
     function openTab(id) {
@@ -723,9 +751,41 @@ function updateItem(ko) {
     document.getElementById('inTta').value = item.tta || "";
     document.getElementById('inWeb').value = item.naver || "";
 
-    go('a');
+    document.getElementById('btn-t1').className = 'tab-btn active';
+    document.getElementById('btn-t2').className = 'tab-btn';
+
+    go('a', 'update');
     openTab('t-single');
 }
+
+
+function updateSave(){
+
+    var ko = document.getElementById('inKo').value.trim();
+
+    for(var i=0; i<db.length; i++){
+
+        if(db[i].ko === ko){
+
+            db.splice(i,1);  // 기존 삭제
+            break;
+        }
+    }
+
+    db.push({
+        ko: ko,
+        content: document.getElementById('inContent').value,
+        gemini: document.getElementById('inGemini').value,
+        gpt: document.getElementById('inGpt').value,
+        tta: document.getElementById('inTta').value,
+        naver: document.getElementById('inWeb').value
+    });
+
+    saveFile(1);
+    go('u');
+}
+
+
 
 
 
